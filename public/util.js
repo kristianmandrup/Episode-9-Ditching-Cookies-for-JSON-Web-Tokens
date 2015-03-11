@@ -1,3 +1,1 @@
-module.exports = {
-  prettyPrint: require('./util/pretty-print')
-};
+export default './util/pretty-print';

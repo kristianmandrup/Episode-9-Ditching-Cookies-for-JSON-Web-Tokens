@@ -1,4 +1,4 @@
-module.exports = function prettyPrintJson(json) {
+export default function prettyPrintJson(json) {
   if (typeof json != 'string') {
     json = JSON.stringify(json, undefined, 2);
   }

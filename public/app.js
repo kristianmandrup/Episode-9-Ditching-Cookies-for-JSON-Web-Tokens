@@ -1,7 +1,28 @@
 var app = angular.module('jwtApp', ['ui.router', 'restangular']);
 
-var prettyPrintJson = require('./util').prettyPrint;
+function prettyPrintJson(json) {
+  if (typeof json != 'string') {
+    json = JSON.stringify(json, undefined, 2);
+  }
+  json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+    var cls = 'number';
+    if (/^"/.test(match)) {
+      if (/:$/.test(match)) {
+        cls = 'key';
+      } else {
+        cls = 'string';
+      }
+    } else if (/true|false/.test(match)) {
+      cls = 'boolean';
+    } else if (/null/.test(match)) {
+      cls = 'null';
+    }
+    return '<span class="' + cls + '">' + match + '</span>';
+  });
+}
 
+// Decoder
 function decodeToken(token) {
   var parts, header, claim, signature;
   token = token || '';
@@ -86,6 +107,10 @@ app.run(function($rootScope, $state){
     });
 })
 
+// Login
+// {
+//   login: true/false
+// }
 
 function loginFactory($window) {
   var isLoggedIn;
@@ -97,6 +122,7 @@ function loginFactory($window) {
   };
 }
 
+// Change
 function tokenCtrl($scope, $window, $sce) {
   var token = $window.localStorage.token;
   token = decodeToken(token);
@@ -115,6 +141,7 @@ function navLoginLinkCtrl($scope, Login) {
   $scope.state = Login;
 }
 
+// Change
 function loginCtrl($scope, $window, $state, Restangular, Login) {
 
   var user = Restangular.all('authenticate');
@@ -137,6 +164,7 @@ function loginCtrl($scope, $window, $state, Restangular, Login) {
 
 }
 
+// Change
 function logoutCtrl($window, Login){
 
   $window.localStorage.removeItem('token');
@@ -144,6 +172,7 @@ function logoutCtrl($window, Login){
 
 }
 
+// Change
 function authInterceptor($window) {
 
   return {
